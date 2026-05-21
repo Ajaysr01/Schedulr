@@ -1,0 +1,247 @@
+/* ── Outer box container ── */
+.meetings-outer-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* ── Tabs bar (top of the outer box) ── */
+.meetings-tabs-bar {
+  padding: 0 28px;
+  border-bottom: 1px solid var(--border);
+}
+
+.meetings-tabs {
+  display: flex;
+  gap: 24px;
+}
+
+.meetings-tab {
+  padding: 16px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.meetings-tab:hover {
+  color: var(--text-primary);
+}
+
+.meetings-tab.active {
+  color: var(--blue);
+  border-bottom-color: var(--blue);
+}
+
+/* ── Content area ── */
+.meetings-content {
+  padding: 20px 24px;
+  min-height: 200px;
+  background: var(--bg);
+}
+
+.meetings-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+/* ── Meeting list ── */
+.meetings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── Each meeting as a sub-card ── */
+.meeting-card-box {
+  display: flex;
+  align-items: stretch;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+
+.meeting-card-box:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
+}
+
+/* Color indicator bar on left */
+.meeting-color-dot {
+  width: 4px;
+  flex-shrink: 0;
+  border-radius: 4px 0 0 4px;
+}
+
+.meeting-row-body {
+  flex: 1;
+  padding: 14px 20px;
+  min-width: 0;
+}
+
+.meeting-row-main {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Left column: event name + meta — fixed width for alignment */
+.meeting-row-left {
+  flex: 0 0 280px;
+  min-width: 0;
+}
+
+.meeting-row-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.meeting-row-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.meeting-row-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+/* Center column: invitee — fixed width for alignment */
+.meeting-row-center {
+  flex: 0 0 200px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.invitee-avatar-sm {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--blue-light);
+  color: var(--blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.invitee-name-sm {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.invitee-email-sm {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Right column: badge + cancel — push to the end */
+.meeting-row-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Notes row */
+.meeting-row-notes {
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 6px;
+  font-style: italic;
+}
+
+.cancellation-note {
+  font-size: 12px;
+  color: var(--red);
+  margin-top: 4px;
+  font-style: italic;
+}
+
+.cancel-btn {
+  color: var(--red);
+}
+.cancel-btn:hover { background: #fee2e2; color: var(--red); }
+
+.meeting-skeleton {
+  height: 60px;
+  margin: 0 24px;
+  margin-top: 12px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, var(--surface-2) 25%, var(--border) 50%, var(--surface-2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.meeting-skeleton:first-child {
+  margin-top: 20px;
+}
+
+@media (max-width: 900px) {
+  .meeting-row-left {
+    flex: 1 1 auto;
+  }
+  .meeting-row-center {
+    flex: 0 1 auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .meeting-row-main {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .meeting-row-left,
+  .meeting-row-center {
+    flex: unset;
+    width: 100%;
+  }
+  .meeting-row-right {
+    margin-left: 0;
+    width: 100%;
+    justify-content: space-between;
+  }
+  .meeting-row-meta { gap: 6px; }
+}
