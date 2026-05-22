@@ -121,7 +121,7 @@ export default function Meetings() {
                       </div>
                       <div className="meeting-row-right">
                         {getStatusBadge(m)}
-                        {m.status === 'scheduled' && (
+                        {m.status === 'scheduled' && !isPast(parseISO(m.start_time + (m.start_time.includes('Z') ? '' : 'Z'))) && (
                           <button
                             className="btn btn-ghost btn-sm cancel-btn"
                             onClick={() => setCancelModal(m)}
