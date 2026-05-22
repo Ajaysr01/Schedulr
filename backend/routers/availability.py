@@ -72,7 +72,11 @@ def set_default_schedule(schedule_id: int, db: Session = Depends(get_db)):
     if not schedule:
         raise HTTPException(status_code=404, detail="Schedule not found")
 
-    db.query(AvailabilitySchedule).update({"is_default": False})
+    # Unset existing defaults safely (prevents MySQL safe update mode errors)
+    old_defaults = db.query(AvailabilitySchedule).filter(AvailabilitySchedule.is_default == True).all()
+    for old in old_defaults:
+        old.is_default = False
+        
     schedule.is_default = True
     db.commit()
     db.refresh(schedule)
