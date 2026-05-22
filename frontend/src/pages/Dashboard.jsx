@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Plus, Link, Pencil, Trash2, Clock, MoreHorizontal, Copy, ExternalLink } from 'lucide-react';
-import { getEventTypes, createEventType, updateEventType, deleteEventType } from '../utils/api';
-import EventTypeModal from '../components/events/EventTypeModal';
+import { Plus, Clock, MoreHorizontal, Copy, ExternalLink, Pencil, Trash2, Link as LinkIcon } from 'lucide-react';
+import { getEventTypes, createEventType, updateEventType, deleteEventType, getAllSchedules } from '../utils/api';
+import EventTypePanel from '../components/events/EventTypeModal';
 import toast from 'react-hot-toast';
 import './Dashboard.css';
 
@@ -14,24 +14,36 @@ const COLOR_OPTIONS = [
 export default function Dashboard() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [panelOpen, setPanelOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
   const [activeMenu, setActiveMenu] = useState(null);
   const [deleteEvent, setDeleteEvent] = useState(null);
+  const [schedules, setSchedules] = useState([]);
   const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
     fetchEvents();
+    fetchSchedules();
   }, []);
 
-  // Open create modal when navigated via sidebar Create button
+  // Open create panel when navigated via sidebar Create button
   useEffect(() => {
     if (searchParams.get('create') === 'true') {
       setEditingEvent(null);
-      setModalOpen(true);
+      openPanel();
       setSearchParams({}, { replace: true });
     }
   }, [searchParams, setSearchParams]);
+
+  // Toggle body class for sidebar collapse when panel is open
+  useEffect(() => {
+    if (panelOpen) {
+      document.body.classList.add('panel-active');
+    } else {
+      document.body.classList.remove('panel-active');
+    }
+    return () => document.body.classList.remove('panel-active');
+  }, [panelOpen]);
 
   async function fetchEvents() {
     try {
@@ -42,14 +54,32 @@ export default function Dashboard() {
     }
   }
 
+  async function fetchSchedules() {
+    try {
+      const { data } = await getAllSchedules();
+      setSchedules(data);
+    } catch {
+      // Schedules fetch is optional — don't block UI
+    }
+  }
+
+  function openPanel() {
+    setPanelOpen(true);
+  }
+
+  function closePanel() {
+    setPanelOpen(false);
+    setEditingEvent(null);
+  }
+
   function openCreate() {
     setEditingEvent(null);
-    setModalOpen(true);
+    openPanel();
   }
 
   function openEdit(event) {
     setEditingEvent(event);
-    setModalOpen(true);
+    openPanel();
     setActiveMenu(null);
   }
 
@@ -83,7 +113,7 @@ export default function Dashboard() {
         setEvents(ev => [...ev, created]);
         toast.success('Event type created!');
       }
-      setModalOpen(false);
+      closePanel();
     } catch (err) {
       const msg = err?.response?.data?.detail || 'Failed to save';
       toast.error(msg);
@@ -97,17 +127,17 @@ export default function Dashboard() {
           <h1 className="page-title">Scheduling</h1>
           <p className="page-subtitle">Create events that people can schedule with you</p>
         </div>
-        <button className="btn btn-primary" onClick={openCreate}>
+        <button className="btn btn-primary" onClick={openCreate} style={{ borderRadius: 999 }}>
           <Plus size={16} />
-          New Event Type
+          Create
         </button>
       </div>
 
-      <div className="page-inner">
+      <div className={`page-inner dashboard-content ${panelOpen ? 'panel-open' : ''}`} style={{ maxWidth: 'none' }}>
 
       {loading ? (
-        <div className="loading-grid">
-          {[1, 2, 3].map(i => <div key={i} className="event-card-skeleton" />)}
+        <div className="loading-list">
+          {[1, 2, 3].map(i => <div key={i} className="event-row-skeleton" />)}
         </div>
       ) : events.length === 0 ? (
         <div className="empty-state">
@@ -121,93 +151,105 @@ export default function Dashboard() {
           </button>
         </div>
       ) : (
-        <div className="events-grid">
+        <div className="events-list">
           {events.map(event => (
-            <div key={event.id} className="event-card card" style={{ borderTop: `4px solid ${event.color}` }}>
-              <div className="event-card-body">
-                <div className="event-card-header">
-                  <h3 className="event-card-name">{event.name}</h3>
-                  <div className="event-menu-wrapper">
-                    <button
-                      className="btn btn-ghost btn-sm icon-btn"
-                      onClick={() => setActiveMenu(activeMenu === event.id ? null : event.id)}
-                    >
-                      <MoreHorizontal size={16} />
-                    </button>
-                    {activeMenu === event.id && (
-                      <>
-                        <div className="menu-backdrop" onClick={() => setActiveMenu(null)} />
-                        <div className="dropdown-menu">
-                          <button className="dropdown-item" onClick={() => openEdit(event)}>
-                            <Pencil size={14} /> Edit
-                          </button>
-                          <button className="dropdown-item" onClick={() => copyLink(event.slug)}>
-                            <Copy size={14} /> Copy Link
-                          </button>
-                          <a
-                            href={`/book/${event.slug}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="dropdown-item"
-                          >
-                            <ExternalLink size={14} /> Preview
-                          </a>
-                          <div style={{ height: 1, background: 'var(--border)', margin: '4px 0' }} />
-                          <button className="dropdown-item danger" onClick={() => { setDeleteEvent(event); setActiveMenu(null); }}>
-                            <Trash2 size={14} /> Delete
-                          </button>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                <div className="event-meta">
-                  <span className="event-duration">
+            <div
+              key={event.id}
+              className="event-row"
+              style={{ borderLeft: `4px solid ${event.color}` }}
+              onClick={() => openEdit(event)}
+            >
+              {/* Event Info */}
+              <div className="event-row-info">
+                <div className="event-row-name">{event.name}</div>
+                <div className="event-row-meta">
+                  <span className="event-row-duration">
                     <Clock size={13} />
                     {event.duration} min
                   </span>
                   {event.location && (
-                    <span className="event-location">{event.location}</span>
+                    <span className="event-row-location">{event.location}</span>
                   )}
                 </div>
-
                 {event.description && (
-                  <p className="event-description">{event.description}</p>
+                  <div className="event-row-desc">{event.description}</div>
                 )}
               </div>
 
-              <div className="event-card-footer">
+              {/* Actions */}
+              <div className="event-row-actions">
+                <button
+                  className="event-row-copy-btn"
+                  onClick={(e) => { e.stopPropagation(); copyLink(event.slug); }}
+                  title="Copy link"
+                >
+                  <Copy size={13} />
+                  <span>Copy link</span>
+                </button>
+
                 <a
                   href={`/book/${event.slug}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="event-link"
+                  className="event-row-link-btn"
+                  title="View booking page"
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  <Link size={13} />
-                  View Booking Page
+                  <ExternalLink size={15} />
                 </a>
-                <button
-                  className="btn btn-secondary btn-sm"
-                  onClick={() => copyLink(event.slug)}
-                >
-                  Copy Link
-                </button>
+
+                <div className="event-menu-wrapper" onClick={(e) => e.stopPropagation()}>
+                  <button
+                    className="event-row-menu-btn"
+                    onClick={(e) => { e.stopPropagation(); setActiveMenu(activeMenu === event.id ? null : event.id); }}
+                    title="More options"
+                  >
+                    <MoreHorizontal size={18} />
+                  </button>
+
+                  {activeMenu === event.id && (
+                    <>
+                      <div className="menu-backdrop" onClick={() => setActiveMenu(null)} />
+                      <div className="dropdown-menu">
+                        <a
+                          href={`/book/${event.slug}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="dropdown-item"
+                        >
+                          <LinkIcon size={14} /> View Booking Page
+                        </a>
+                        <button className="dropdown-item" onClick={() => openEdit(event)}>
+                          <Pencil size={14} /> Edit
+                        </button>
+                        <div style={{ height: 1, background: 'var(--border)', margin: '4px 0' }} />
+                        <button
+                          className="dropdown-item danger"
+                          onClick={() => { setDeleteEvent(event); setActiveMenu(null); }}
+                        >
+                          <Trash2 size={14} /> Delete
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           ))}
         </div>
       )}
 
-      {modalOpen && (
-        <EventTypeModal
-          event={editingEvent}
-          onSave={handleSave}
-          onClose={() => setModalOpen(false)}
-          colors={COLOR_OPTIONS}
-        />
-      )}
+      {/* Side Panel for Create/Edit */}
+      <EventTypePanel
+        event={editingEvent}
+        onSave={handleSave}
+        onClose={closePanel}
+        colors={COLOR_OPTIONS}
+        schedules={schedules}
+        isOpen={panelOpen}
+      />
 
+      {/* Delete Confirmation Modal */}
       {deleteEvent && (
         <div className="modal-backdrop" onClick={(e) => e.target === e.currentTarget && setDeleteEvent(null)}>
           <div className="modal" style={{ maxWidth: 420, borderRadius: 8 }}>
@@ -219,15 +261,15 @@ export default function Dashboard() {
                 Users will be unable to schedule further meetings with deleted event types. Meetings previously scheduled will not be affected.
               </p>
               <div style={{ display: 'flex', gap: 16, justifyContent: 'center' }}>
-                <button 
-                  className="btn btn-secondary" 
+                <button
+                  className="btn btn-secondary"
                   style={{ flex: 1, borderRadius: 99, padding: '12px', justifyContent: 'center' }}
                   onClick={() => setDeleteEvent(null)}
                 >
                   Cancel
                 </button>
-                <button 
-                  className="btn" 
+                <button
+                  className="btn"
                   style={{ flex: 1, borderRadius: 99, padding: '12px', background: '#d53b00', color: 'white', justifyContent: 'center', border: 'none' }}
                   onClick={confirmDelete}
                 >

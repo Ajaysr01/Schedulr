@@ -23,7 +23,7 @@ export default function App() {
   return (
     <Router>
       <Toaster
-        position="top-right"
+        position="top-center"
         toastOptions={{
           style: {
             fontFamily: "'DM Sans', sans-serif",

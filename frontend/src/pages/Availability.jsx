@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getAllSchedules, updateAvailability, createSchedule, getEventTypes, bulkAssignSchedule, deleteSchedule } from '../utils/api';
+import { getAllSchedules, updateAvailability, createSchedule, getEventTypes, bulkAssignSchedule, deleteSchedule, setDefaultSchedule } from '../utils/api';
 import toast from 'react-hot-toast';
 import { ChevronDown, Plus, MoreVertical, X } from 'lucide-react';
 import './Availability.css';
@@ -150,6 +150,18 @@ export default function Availability() {
       toast.success("Schedule deleted!");
     } catch {
       toast.error("Failed to delete schedule");
+    }
+    setShowMoreDropdown(false);
+  }
+
+  async function handleMakeDefault() {
+    if (!activeScheduleId) return;
+    try {
+      await setDefaultSchedule(activeScheduleId);
+      toast.success("Schedule set as default!");
+      fetchData();
+    } catch {
+      toast.error("Failed to set default schedule");
     }
     setShowMoreDropdown(false);
   }
@@ -374,12 +386,20 @@ export default function Availability() {
                       Rename
                     </button>
                     {!schedule?.is_default && (
-                      <button 
-                        style={{ padding: '12px 16px', background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left', fontSize: 14, color: 'var(--red)' }}
-                        onClick={handleDeleteSchedule}
-                      >
-                        Delete
-                      </button>
+                      <>
+                        <button 
+                          style={{ padding: '12px 16px', background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left', fontSize: 14, color: 'var(--text-primary)', borderBottom: '1px solid var(--border)' }}
+                          onClick={handleMakeDefault}
+                        >
+                          Make default
+                        </button>
+                        <button 
+                          style={{ padding: '12px 16px', background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left', fontSize: 14, color: 'var(--red)' }}
+                          onClick={handleDeleteSchedule}
+                        >
+                          Delete
+                        </button>
+                      </>
                     )}
                   </div>
                 </>

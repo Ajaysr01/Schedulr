@@ -189,9 +189,14 @@ input, select, textarea {
   flex: 1;
   margin-left: var(--sidebar-width);
   min-height: 100vh;
-  transition: margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: margin-left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
+}
+
+/* Panel-active: shift page-content to match collapsed sidebar */
+body.panel-active .page-content {
+  margin-left: 80px;
 }
 
 .page-inner {
@@ -206,6 +211,9 @@ input, select, textarea {
   background: var(--surface);
   padding: 36px 40px 24px 40px;
   border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 40;
 }
 
 .page-title {

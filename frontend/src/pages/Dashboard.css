@@ -1,51 +1,53 @@
-.events-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 18px;
-}
-
-.event-card {
-  position: relative;
-  transition: box-shadow 0.2s;
+/* ── Event Type Rows (wide rectangular cards) ── */
+.events-list {
   display: flex;
   flex-direction: column;
-}
-
-.event-card:hover {
-  box-shadow: var(--shadow);
-}
-
-
-
-.event-card-body {
-  padding: 18px 20px 14px;
-  flex: 1;
-}
-
-.event-card-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
   gap: 10px;
-  margin-bottom: 10px;
 }
 
-.event-card-name {
-  font-size: 16px;
+.event-row {
+  display: flex;
+  align-items: center;
+  padding: 18px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+  position: relative;
+  cursor: pointer;
+}
+
+.event-row:hover {
+  background: var(--surface-2);
+}
+
+/* ── Row Content Layout ── */
+.event-row-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.event-row-name {
+  font-size: 15px;
   font-weight: 700;
   color: var(--text-primary);
   line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.event-meta {
+.event-row-meta {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
-  margin-bottom: 8px;
 }
 
-.event-duration {
+.event-row-duration {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -54,7 +56,7 @@
   font-weight: 500;
 }
 
-.event-location {
+.event-row-location {
   font-size: 12px;
   color: var(--text-muted);
   background: var(--surface-2);
@@ -62,36 +64,92 @@
   border-radius: 99px;
 }
 
-.event-description {
+.event-row-desc {
   font-size: 13px;
   color: var(--text-muted);
-  line-height: 1.5;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  line-height: 1.4;
+  white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 400px;
 }
 
-.event-card-footer {
-  padding: 14px 20px;
-  border-top: 1px solid var(--border);
+/* ── Row Actions ── */
+.event-row-actions {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 6px;
+  margin-left: auto;
+  flex-shrink: 0;
+  padding-left: 16px;
 }
 
-.event-link {
+.event-row-copy-btn {
   display: inline-flex;
   align-items: center;
   gap: 5px;
+  padding: 6px 14px;
+  border-radius: 99px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--text-secondary);
   font-size: 13px;
-  color: var(--blue);
   font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  font-family: 'DM Sans', sans-serif;
 }
-.event-link:hover { text-decoration: underline; }
 
-/* Menu */
-.event-menu-wrapper { position: relative; }
+.event-row-copy-btn:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+  background: var(--blue-light);
+}
+
+.event-row-link-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.event-row-link-btn:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+  background: var(--blue-light);
+}
+
+.event-row-menu-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: none;
+}
+
+.event-row-menu-btn:hover {
+  background: var(--surface-2);
+  color: var(--text-primary);
+}
+
+/* ── Dropdown Menu ── */
+.event-menu-wrapper {
+  position: relative;
+}
 
 .menu-backdrop {
   position: fixed;
@@ -107,7 +165,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow-lg);
-  min-width: 160px;
+  min-width: 180px;
   z-index: 20;
   padding: 4px;
   animation: slideUp 0.1s ease;
@@ -128,29 +186,42 @@
   cursor: pointer;
   text-decoration: none;
   transition: background 0.1s;
-}
-.dropdown-item:hover { background: var(--surface-2); color: var(--text-primary); }
-.dropdown-item.danger { color: var(--red); }
-.dropdown-item.danger:hover { background: #fee2e2; }
-
-.icon-btn {
-  padding: 6px;
-  border-radius: var(--radius-sm);
+  font-family: 'DM Sans', sans-serif;
 }
 
-/* Loading */
-.loading-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 18px;
+.dropdown-item:hover {
+  background: var(--surface-2);
+  color: var(--text-primary);
 }
 
-.event-card-skeleton {
-  height: 180px;
-  border-radius: var(--radius-lg);
+.dropdown-item.danger {
+  color: var(--red);
+}
+
+.dropdown-item.danger:hover {
+  background: #fee2e2;
+}
+
+/* ── Loading ── */
+.loading-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.event-row-skeleton {
+  height: 68px;
   background: linear-gradient(90deg, var(--surface-2) 25%, var(--border) 50%, var(--surface-2) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
+  border-bottom: 1px solid var(--border);
+}
+
+.event-row-skeleton:last-child {
+  border-bottom: none;
 }
 
 @keyframes shimmer {
@@ -158,6 +229,39 @@
   100% { background-position: 200% 0; }
 }
 
+/* ── Panel-aware layout transitions ── */
+.dashboard-content {
+  transition: margin-right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dashboard-content.panel-open {
+  margin-right: 420px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .event-row {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .event-row-actions {
+    width: 100%;
+    padding-left: 0;
+    justify-content: flex-end;
+  }
+
+  .dashboard-content.panel-open {
+    margin-right: 0;
+  }
+}
+
 @media (max-width: 640px) {
-  .events-grid { grid-template-columns: 1fr; }
+  .event-row-desc {
+    display: none;
+  }
+
+  .event-row-copy-btn span {
+    display: none;
+  }
 }

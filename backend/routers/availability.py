@@ -66,6 +66,18 @@ def update_schedule(schedule_id: int, data: AvailabilityUpdate, db: Session = De
     db.refresh(schedule)
     return schedule
 
+@router.put("/{schedule_id}/default", response_model=AvailabilityScheduleOut)
+def set_default_schedule(schedule_id: int, db: Session = Depends(get_db)):
+    schedule = db.query(AvailabilitySchedule).filter(AvailabilitySchedule.id == schedule_id).first()
+    if not schedule:
+        raise HTTPException(status_code=404, detail="Schedule not found")
+
+    db.query(AvailabilitySchedule).update({"is_default": False})
+    schedule.is_default = True
+    db.commit()
+    db.refresh(schedule)
+    return schedule
+
 @router.delete("/{schedule_id}")
 def delete_schedule(schedule_id: int, db: Session = Depends(get_db)):
     schedule = db.query(AvailabilitySchedule).filter(AvailabilitySchedule.id == schedule_id).first()

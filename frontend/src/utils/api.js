@@ -22,6 +22,7 @@ export const getAllSchedules = () => api.get('/availability/all');
 export const createSchedule = (data) => api.post('/availability/', data);
 export const updateAvailability = (id, data) => api.put(`/availability/${id}`, data);
 export const deleteSchedule = (id) => api.delete(`/availability/${id}`);
+export const setDefaultSchedule = (id) => api.put(`/availability/${id}/default`);
 export const addDateOverride = (data) => api.post('/availability/overrides', data);
 export const deleteDateOverride = (id) => api.delete(`/availability/overrides/${id}`);
 

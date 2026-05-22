@@ -31,12 +31,9 @@
 .logo-icon {
   width: 36px;
   height: 36px;
-  background: linear-gradient(135deg, #006bff 0%, #00a0ff 100%);
-  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
   flex-shrink: 0;
 }
 
@@ -319,4 +316,77 @@
   .collapsed .sidebar-create {
     padding: 8px 12px 4px;
   }
+}
+
+/* ── Panel-Active: Force sidebar collapse ── */
+body.panel-active .sidebar {
+  width: 80px;
+}
+
+body.panel-active .sidebar-logo {
+  justify-content: center;
+  padding: 20px 0 16px;
+  gap: 0;
+}
+
+body.panel-active .logo-text {
+  display: none;
+}
+
+body.panel-active .collapse-toggle {
+  position: absolute;
+  top: 22px;
+  right: -16px;
+  margin-top: 0;
+  z-index: 10;
+}
+
+body.panel-active .sidebar-create {
+  padding: 8px 12px 4px;
+  display: flex;
+  justify-content: center;
+}
+
+body.panel-active .create-btn {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 50%;
+}
+
+body.panel-active .create-btn span {
+  display: none;
+}
+
+body.panel-active .sidebar-nav {
+  padding: 16px 0;
+  align-items: center;
+}
+
+body.panel-active .nav-item {
+  width: 68px;
+  height: auto;
+  padding: 12px 4px;
+  flex-direction: column;
+  justify-content: center;
+  border-radius: 12px;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+body.panel-active .nav-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+  white-space: normal;
+  line-height: 1.2;
+}
+
+body.panel-active .nav-item.active::before {
+  left: -6px;
+}
+
+body.panel-active .nav-item svg {
+  width: 24px;
+  height: 24px;
 }

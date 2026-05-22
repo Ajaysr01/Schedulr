@@ -1,24 +1,47 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
+import './EventTypePanel.css';
 
-export default function EventTypeModal({ event, onSave, onClose, colors }) {
+export default function EventTypePanel({ event, onSave, onClose, colors, schedules, isOpen }) {
+  // Pick the default schedule
+  const defaultSchedule = schedules?.find(s => s.is_default);
+  const defaultScheduleId = defaultSchedule ? defaultSchedule.id : (schedules?.length > 0 ? schedules[0].id : '');
+
   const [form, setForm] = useState({
-    name: event?.name || '',
-    slug: event?.slug || '',
-    duration: event?.duration || 30,
-    description: event?.description || '',
-    color: event?.color || '#0069ff',
-    location: event?.location || '',
-    buffer_before: event?.buffer_before || 0,
-    buffer_after: event?.buffer_after || 0,
+    name: '',
+    slug: '',
+    duration: 30,
+    description: '',
+    color: '#0069ff',
+    location: '',
+    buffer_before: 0,
+    buffer_after: 0,
+    schedule_id: defaultScheduleId,
   });
   const [saving, setSaving] = useState(false);
+
+  // Reset form when event changes or panel opens
+  useEffect(() => {
+    if (isOpen) {
+      setForm({
+        name: event?.name || '',
+        slug: event?.slug || '',
+        duration: event?.duration || 30,
+        description: event?.description || '',
+        color: event?.color || '#0069ff',
+        location: event?.location || '',
+        buffer_before: event?.buffer_before || 0,
+        buffer_after: event?.buffer_after || 0,
+        schedule_id: event?.schedule_id || defaultScheduleId,
+      });
+    }
+  }, [event, isOpen, defaultScheduleId]);
 
   function handleChange(e) {
     const { name, value } = e.target;
     setForm(f => ({ ...f, [name]: value }));
 
-    // Auto-generate slug from name (both create and edit)
+    // Auto-generate slug from name
     if (name === 'name') {
       const slug = value.toLowerCase()
         .replace(/[^a-z0-9\s-]/g, '')
@@ -33,66 +56,82 @@ export default function EventTypeModal({ event, onSave, onClose, colors }) {
     e.preventDefault();
     if (!form.name || !form.slug || !form.duration) return;
     setSaving(true);
-    await onSave({ ...form, duration: parseInt(form.duration) });
+    const payload = {
+      ...form,
+      duration: parseInt(form.duration),
+      buffer_before: parseInt(form.buffer_before) || 0,
+      buffer_after: parseInt(form.buffer_after) || 0,
+    };
+    // Only include schedule_id if selected
+    if (form.schedule_id) {
+      payload.schedule_id = parseInt(form.schedule_id);
+    } else {
+      delete payload.schedule_id;
+    }
+    await onSave(payload);
     setSaving(false);
   }
 
   return (
-    <div className="modal-backdrop" onClick={e => e.target === e.currentTarget && onClose()}>
-      <div className="modal">
-        <div className="modal-header">
-          <h2 className="modal-title">{event ? 'Edit Event Type' : 'New Event Type'}</h2>
-          <button className="btn btn-ghost btn-sm" onClick={onClose} style={{ padding: '6px' }}>
-            <X size={18} />
-          </button>
-        </div>
+    <>
+      {/* Overlay */}
+      <div
+        className={`panel-overlay ${isOpen ? 'visible' : ''}`}
+        onClick={onClose}
+      />
 
-        <form onSubmit={handleSubmit}>
-          <div className="modal-body">
-            <div className="form-group">
-              <label className="form-label">Event Name *</label>
+      {/* Side Panel */}
+      <div className={`event-side-panel ${isOpen ? 'open' : ''}`}>
+        <button className="panel-close-btn" onClick={onClose} type="button">
+          <X size={18} />
+        </button>
+
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+          <div className="panel-content">
+            <h2 className="panel-title">
+              {event ? 'Edit Event Type' : 'New Event Type'}
+            </h2>
+
+            {/* Event Name */}
+            <div className="panel-form-group">
+              <label className="panel-form-label">Event Name *</label>
               <input
-                className="form-input"
+                className="panel-form-input"
                 name="name"
                 value={form.name}
                 onChange={handleChange}
                 placeholder="e.g. 30 Minute Meeting"
                 required
+                autoFocus={isOpen && !event}
               />
             </div>
 
-            <div className="form-group">
-              <label className="form-label">URL Slug *</label>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
-                <span style={{
-                  padding: '10px 12px',
-                  background: 'var(--surface-2)',
-                  border: '1.5px solid var(--border)',
-                  borderRight: 'none',
-                  borderRadius: 'var(--radius) 0 0 var(--radius)',
-                  fontSize: 13,
-                  color: 'var(--text-muted)',
-                  whiteSpace: 'nowrap'
-                }}>
-                  /book/
-                </span>
+            {/* URL Slug */}
+            <div className="panel-form-group">
+              <label className="panel-form-label">URL Slug *</label>
+              <div className="panel-slug-wrapper">
+                <span className="panel-slug-prefix">/book/</span>
                 <input
-                  className="form-input"
+                  className="panel-form-input panel-slug-input"
                   name="slug"
                   value={form.slug}
                   onChange={handleChange}
                   placeholder="30min"
                   required
-
-                  style={{ borderRadius: '0 var(--radius) var(--radius) 0' }}
                 />
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-              <div className="form-group">
-                <label className="form-label">Duration (minutes) *</label>
-                <select className="form-input form-select" name="duration" value={form.duration} onChange={handleChange}>
+            {/* Duration + Location row */}
+            <div className="panel-row">
+              <div className="panel-form-group">
+                <label className="panel-form-label">Duration *</label>
+                <select
+                  className="panel-form-input panel-form-select"
+                  name="duration"
+                  value={form.duration}
+                  onChange={handleChange}
+                >
                   <option value={15}>15 minutes</option>
                   <option value={30}>30 minutes</option>
                   <option value={45}>45 minutes</option>
@@ -101,10 +140,10 @@ export default function EventTypeModal({ event, onSave, onClose, colors }) {
                 </select>
               </div>
 
-              <div className="form-group">
-                <label className="form-label">Location</label>
+              <div className="panel-form-group">
+                <label className="panel-form-label">Location</label>
                 <input
-                  className="form-input"
+                  className="panel-form-input"
                   name="location"
                   value={form.location}
                   onChange={handleChange}
@@ -113,10 +152,11 @@ export default function EventTypeModal({ event, onSave, onClose, colors }) {
               </div>
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Description</label>
+            {/* Description */}
+            <div className="panel-form-group">
+              <label className="panel-form-label">Description</label>
               <textarea
-                className="form-input form-textarea"
+                className="panel-form-input panel-form-textarea"
                 name="description"
                 value={form.description}
                 onChange={handleChange}
@@ -124,11 +164,12 @@ export default function EventTypeModal({ event, onSave, onClose, colors }) {
               />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-              <div className="form-group">
-                <label className="form-label">Buffer Before (min)</label>
+            {/* Buffers row */}
+            <div className="panel-row">
+              <div className="panel-form-group">
+                <label className="panel-form-label">Buffer Before (min)</label>
                 <input
-                  className="form-input"
+                  className="panel-form-input"
                   type="number"
                   name="buffer_before"
                   value={form.buffer_before}
@@ -137,10 +178,10 @@ export default function EventTypeModal({ event, onSave, onClose, colors }) {
                   max={60}
                 />
               </div>
-              <div className="form-group">
-                <label className="form-label">Buffer After (min)</label>
+              <div className="panel-form-group">
+                <label className="panel-form-label">Buffer After (min)</label>
                 <input
-                  className="form-input"
+                  className="panel-form-input"
                   type="number"
                   name="buffer_after"
                   value={form.buffer_after}
@@ -151,41 +192,56 @@ export default function EventTypeModal({ event, onSave, onClose, colors }) {
               </div>
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Color</label>
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <div className="panel-divider" />
+
+            {/* Availability Schedule */}
+            <div className="panel-form-group">
+              <label className="panel-form-label">Availability Schedule</label>
+              <select
+                className="panel-availability-select"
+                name="schedule_id"
+                value={form.schedule_id}
+                onChange={handleChange}
+              >
+                {(schedules || []).map(s => (
+                  <option key={s.id} value={s.id}>
+                    {s.name} {s.is_default ? '(default)' : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="panel-divider" />
+
+            {/* Color Picker */}
+            <div className="panel-form-group">
+              <label className="panel-form-label">Color</label>
+              <div className="panel-colors">
                 {colors.map(c => (
                   <button
                     key={c}
                     type="button"
+                    className={`panel-color-swatch ${form.color === c ? 'selected' : ''}`}
+                    style={{ background: c }}
                     onClick={() => setForm(f => ({ ...f, color: c }))}
-                    style={{
-                      width: 30,
-                      height: 30,
-                      borderRadius: '50%',
-                      background: c,
-                      border: form.color === c ? '3px solid var(--text-primary)' : '3px solid transparent',
-                      outline: form.color === c ? '2px solid white' : 'none',
-                      outlineOffset: -4,
-                      cursor: 'pointer',
-                      transition: 'transform 0.1s',
-                      transform: form.color === c ? 'scale(1.15)' : 'scale(1)',
-                    }}
                   />
                 ))}
               </div>
             </div>
           </div>
 
-          <div className="modal-footer">
-            <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
-            <button type="submit" className="btn btn-primary" disabled={saving}>
+          {/* Footer */}
+          <div className="panel-footer">
+            <button type="button" className="panel-btn-cancel" onClick={onClose}>
+              Cancel
+            </button>
+            <button type="submit" className="panel-btn-save" disabled={saving}>
               {saving ? <span className="spinner" /> : null}
-              {event ? 'Save Changes' : 'Create Event'}
+              {event ? 'Save Changes' : 'Create'}
             </button>
           </div>
         </form>
       </div>
-    </div>
+    </>
   );
 }
