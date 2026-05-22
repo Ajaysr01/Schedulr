@@ -44,7 +44,23 @@ def create_schedule(data: AvailabilityScheduleCreate, db: Session = Depends(get_
         
     return schedule
 
-@router.put("/{schedule_id}", response_model=AvailabilityScheduleOut)
+@router.post("/set-default", response_model=AvailabilityScheduleOut)
+def set_default_schedule(data: SetDefaultRequest, db: Session = Depends(get_db)):
+    schedule = db.query(AvailabilitySchedule).filter(AvailabilitySchedule.id == data.schedule_id).first()
+    if not schedule:
+        raise HTTPException(status_code=404, detail="Schedule not found")
+
+    # Unset existing defaults safely (prevents MySQL safe update mode errors)
+    old_defaults = db.query(AvailabilitySchedule).filter(AvailabilitySchedule.is_default).all()
+    for old in old_defaults:
+        old.is_default = False
+        
+    schedule.is_default = True
+    db.commit()
+    db.refresh(schedule)
+    return schedule
+
+@router.put("/{schedule_id:int}", response_model=AvailabilityScheduleOut)
 def update_schedule(schedule_id: int, data: AvailabilityUpdate, db: Session = Depends(get_db)):
     schedule = db.query(AvailabilitySchedule).filter(AvailabilitySchedule.id == schedule_id).first()
     if not schedule:
@@ -67,23 +83,7 @@ def update_schedule(schedule_id: int, data: AvailabilityUpdate, db: Session = De
     db.refresh(schedule)
     return schedule
 
-@router.post("/set-default", response_model=AvailabilityScheduleOut)
-def set_default_schedule(data: SetDefaultRequest, db: Session = Depends(get_db)):
-    schedule = db.query(AvailabilitySchedule).filter(AvailabilitySchedule.id == data.schedule_id).first()
-    if not schedule:
-        raise HTTPException(status_code=404, detail="Schedule not found")
-
-    # Unset existing defaults safely (prevents MySQL safe update mode errors)
-    old_defaults = db.query(AvailabilitySchedule).filter(AvailabilitySchedule.is_default).all()
-    for old in old_defaults:
-        old.is_default = False
-        
-    schedule.is_default = True
-    db.commit()
-    db.refresh(schedule)
-    return schedule
-
-@router.delete("/{schedule_id}")
+@router.delete("/{schedule_id:int}")
 def delete_schedule(schedule_id: int, db: Session = Depends(get_db)):
     schedule = db.query(AvailabilitySchedule).filter(AvailabilitySchedule.id == schedule_id).first()
     if not schedule:
