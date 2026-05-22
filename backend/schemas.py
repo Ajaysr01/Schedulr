@@ -90,6 +90,9 @@ class AvailabilityUpdate(BaseModel):
     timezone: Optional[str] = None
     slots: Optional[List[AvailabilitySlotBase]] = None
 
+class SetDefaultRequest(BaseModel):
+    schedule_id: int
+
 
 # ── Bookings / Meetings ───────────────────────────────────────────────────────
 

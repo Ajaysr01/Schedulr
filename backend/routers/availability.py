@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session
 from database import get_db
 from models import AvailabilitySchedule, AvailabilitySlot, DateOverride
 from schemas import (AvailabilityScheduleOut, AvailabilityUpdate,
-                     AvailabilityScheduleCreate, DateOverrideBase, DateOverrideOut)
+                     AvailabilityScheduleCreate, DateOverrideBase, DateOverrideOut,
+                     SetDefaultRequest)
 from typing import List
 
 router = APIRouter()
@@ -66,9 +67,9 @@ def update_schedule(schedule_id: int, data: AvailabilityUpdate, db: Session = De
     db.refresh(schedule)
     return schedule
 
-@router.put("/{schedule_id}/default", response_model=AvailabilityScheduleOut)
-def set_default_schedule(schedule_id: int, db: Session = Depends(get_db)):
-    schedule = db.query(AvailabilitySchedule).filter(AvailabilitySchedule.id == schedule_id).first()
+@router.post("/set-default", response_model=AvailabilityScheduleOut)
+def set_default_schedule(data: SetDefaultRequest, db: Session = Depends(get_db)):
+    schedule = db.query(AvailabilitySchedule).filter(AvailabilitySchedule.id == data.schedule_id).first()
     if not schedule:
         raise HTTPException(status_code=404, detail="Schedule not found")
 
