@@ -29,7 +29,11 @@ def list_meetings(
         )
 
     if status:
-        query = query.filter(Meeting.status == status)
+        try:
+            status_enum = MeetingStatus(status)
+            query = query.filter(Meeting.status == status_enum)
+        except ValueError:
+            pass
 
     return query.order_by(Meeting.start_time).all()
 

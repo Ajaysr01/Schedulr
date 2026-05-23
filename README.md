@@ -8,7 +8,7 @@ A full-stack scheduling and booking web application that closely replicates Cale
 |-------------|-------------------------------------|
 | Frontend    | React 18, React Router v6, date-fns |
 | Backend     | Python 3.11+, FastAPI, SQLAlchemy   |
-| Database    | SQLite (dev) / MySQL (prod)         |
+| Database    | SQLite (dev) / PostgreSQL (prod)    |
 | Styling     | Custom CSS with DM Sans font        |
 
 ---
@@ -107,35 +107,30 @@ App runs at http://localhost:3000
 
 ---
 
-## MySQL Configuration
+## PostgreSQL Configuration
 
-To use MySQL instead of SQLite, set the `DATABASE_URL` environment variable:
+To use PostgreSQL instead of SQLite, set the `DATABASE_URL` environment variable. If using Supabase, you can copy the connection string directly (it handles `postgres://` or `postgresql://` automatically):
 
 ```bash
-export DATABASE_URL="mysql+pymysql://user:password@host:3306/schedulr"
-```
-
-**MySQL Schema (run manually if needed):**
-```sql
-CREATE DATABASE schedulr CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+export DATABASE_URL="postgresql://user:password@host:5432/postgres"
 ```
 
 ---
 
 ## Deployment
 
-### Backend (Render / Railway)
+### Backend (Render)
 
-1. Set `DATABASE_URL` environment variable to your MySQL connection string
+1. Set `DATABASE_URL` environment variable to your PostgreSQL connection string from Supabase
 2. Set start command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
 3. Install command: `pip install -r requirements.txt`
 
-### Frontend (Vercel / Netlify)
+### Frontend (Vercel)
 
-1. Set `REACT_APP_API_URL` to your deployed backend URL
+1. Set `REACT_APP_API_URL` to your deployed Render backend URL
 2. Build command: `npm run build`
 3. Publish directory: `build`
-4. Add `_redirects` file with `/* /index.html 200` for SPA routing (Netlify)
+4. Routing is handled automatically by Vercel for single-page apps (add `vercel.json` if needed).
 
 ---
 
