@@ -8,7 +8,7 @@ A full-stack scheduling and booking web application that closely replicates Cale
 |-------------|-------------------------------------|
 | Frontend    | React 18, React Router v6, date-fns |
 | Backend     | Python 3.11+, FastAPI, SQLAlchemy   |
-| Database    | SQLite (dev) / PostgreSQL (prod)    |
+| Database    | SQLite (Local dev) / PostgreSQL via Supabase (production) |
 | Styling     | Custom CSS with DM Sans font        |
 
 ---
@@ -109,10 +109,12 @@ App runs at http://localhost:3000
 
 ## PostgreSQL Configuration
 
-To use PostgreSQL instead of SQLite, set the `DATABASE_URL` environment variable. If using Supabase, you can copy the connection string directly (it handles `postgres://` or `postgresql://` automatically):
+Production deployment uses Supabase PostgreSQL with the Transaction Pooler connection string.
+
+To use PostgreSQL instead of SQLite, set the `DATABASE_URL` environment variable:
 
 ```bash
-export DATABASE_URL="postgresql://user:password@host:5432/postgres"
+export DATABASE_URL="postgresql://user:password@aws-0-region.pooler.supabase.com:6543/postgres"
 ```
 
 ---
