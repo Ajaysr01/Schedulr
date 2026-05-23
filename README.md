@@ -15,13 +15,13 @@ A full-stack scheduling and booking web application that closely replicates Cale
 
 ## Features
 
-### Core Features
+### Core Features: 
 - **Event Types Management** — Create, edit, delete event types with name, duration, slug, color, location, buffer time
 - **Availability Settings** — Set weekly working hours per day, timezone selection, quick preset buttons
 - **Public Booking Page** — Month calendar, time slot selection, booking form, double-booking prevention
 - **Meetings Page** — View upcoming/past meetings, cancel meetings with reason
 
-### Improvements
+### Additional Improvements: 
 - Responsive design (mobile, tablet, desktop)
 - Buffer time before/after meetings
 - Date-specific display (today's upcoming-only slots)
