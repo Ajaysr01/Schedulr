@@ -23,6 +23,7 @@ A full-stack scheduling and booking web application that closely replicates Cale
 
 ### Additional Improvements: 
 - Responsive design (mobile, tablet, desktop)
+- Multiple Availability Schedules
 - Buffer time before/after meetings
 - Date-specific display (today's upcoming-only slots)
 - Public profile page (`/john`) listing all event types
@@ -156,9 +157,8 @@ CREATE DATABASE schedulr CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 2. **Timezone** — Slots are calculated in the host's configured timezone. Invitees can select their own timezone on the booking page.
 3. **Slot increments** — Available time slots are generated in 30-minute increments regardless of meeting duration.
 4. **Past dates** — Dates in the past cannot be booked. For today, only slots 30+ minutes from now are shown.
-5. **Default schedule** — The system uses one default availability schedule (multi-schedule is a schema-level feature but UI shows single schedule).
-6. **Email notifications** — Not implemented (noted as "good to have"). Confirmation token is returned in the booking response for future integration.
-7. **Completed status** — Meetings in the past with "scheduled" status are displayed as "Completed" on the UI but the DB still shows `scheduled`.
+5. **Email notifications** — Not implemented (noted as "good to have"). Confirmation token is returned in the booking response for future integration.
+6. **Completed status** — Meetings in the past with "scheduled" status are displayed as "Completed" on the UI but the DB still shows `scheduled`.
 
 ---
 
