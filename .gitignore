@@ -1,0 +1,17 @@
+# Mac system files
+.DS_Store
+
+# Environments
+.env
+
+# Backend (Python)
+backend/venv/
+backend/__pycache__/
+*.py[cod]
+*$py.class
+backend/calendly.db
+
+# Frontend (Node)
+frontend/node_modules/
+frontend/build/
+frontend/.npm/
