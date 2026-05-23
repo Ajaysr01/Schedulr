@@ -30,7 +30,7 @@ def get_available_slots(
         schedule_tz = pytz.utc
 
     # The target_date is in the invitee's timezone.
-    # Determine which schedule-timezone day(s) overlap this invitee day.
+    # Determine which schedule-timezone days overlap this invitee day.
     inv_day_start = invitee_tz.localize(
         datetime(target_date.year, target_date.month, target_date.day, 0, 0)
     )

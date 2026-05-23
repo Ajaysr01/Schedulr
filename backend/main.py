@@ -21,7 +21,7 @@ load_dotenv()
 
 app = FastAPI(title="Calendly Clone API", lifespan=lifespan)
 
-# Setup CORS dynamically based on environment
+# setting up CORS based on environment variable
 allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "*")
 if allowed_origins_env == "*":
     origins = ["*"]
